@@ -5,8 +5,141 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:thesis_evaluation"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="Evaluacion del movimiento funcional"
+        Height="750" Width="800"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing" >
+    <Grid Margin="10 0 10 0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid x:Name="headerGrid" Grid.Row="0" Width="750" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Text="Selecciona los archivos" VerticalAlignment="Bottom" Margin="0 0 -1 0" FontFamily="Segoe UI" FontSize="18"/>
+            <Button Name="btnOpenFileGBD" IsEnabled="{Binding BtnOpenFileGBDIsEnable}" Click="btnOpenFileGBD_Click" Grid.Column="0" Grid.Row="1" Margin="5">Selecciona archivo gbd</Button>
+            <Label  Name="lbOpenFileFBD" Grid.ColumnSpan="2" Content="{Binding BtnOpenFileGBDText}" Grid.Column="1" Grid.Row="1" Margin="5" />
+
+            <Button Name="btnOpenFileJSON" IsEnabled="{Binding BtnOpenFileJSONIsEnable}" Click="btnOpenFileJSON_Click" Grid.Column="0" Grid.Row="2" Margin="5">Selecciona archivo metadata</Button>
+            <Label Name="lbOpenFileJSON" Grid.ColumnSpan="2" Content="{Binding BtnOpenFileJSONText}" Grid.Column="1" Grid.Row="2" Margin="5" />
+
+            <Button Name="btnOpenCarpet" IsEnabled="{Binding BtnOpenCarpetIsEnable}" Click="btnOpenFileCarpet_Click" Grid.Column="0" Grid.Row="3" Margin="5">Selecciona carpeta de datos</Button>
+            <Label Name="lbOpenCarpet" Grid.ColumnSpan="2" Content="{Binding BtnOpenCarpetText}" Grid.Column="1" Grid.Row="3" Margin="5" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" Text="Acciones" VerticalAlignment="Bottom" Margin="0 0 -1 0" FontFamily="Segoe UI" FontSize="18"/>
+            <TextBlock Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" Text="Parametros" VerticalAlignment="Bottom" Margin="0 0 -1 0" FontFamily="Segoe UI" FontSize="18"/>
+            <TextBlock Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" Text="{Binding LbCalibracion}" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="0 0 -1 0" FontFamily="Segoe UI" FontSize="14"/>
+
+            <Button Name="btnCalibrar" IsEnabled="{Binding BtnCalibrarIsEnable}" Click="btnCalibrar_Click" Grid.Column="0" Grid.Row="5" Margin="5">Calibrar Kinect</Button>
+            <Grid  Grid.Row="5" Grid.Column="1"  Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label Content="Series:" Grid.Column="0" Grid.Row="0" Margin="1"  HorizontalAlignment="Right"/>
+                <TextBox PreviewTextInput="PreviewTextInput" Grid.Row="0" Grid.Column="1" Margin="1" ></TextBox>
+            </Grid>
+            <Label  Name="lbAlturaKinect" Content="{Binding LbAlturaKinectText}" Grid.Column="2" Grid.Row="5" Margin="5" />
+
+            <Button Name="btnParar" IsEnabled="{Binding BtnPararIsEnable}" Click="btnParar_Click" Grid.Column="0" Grid.Row="6" Margin="5" >Parar Kinect</Button>
+            <Grid  Grid.Row="6" Grid.Column="1"  Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label Content="Descanso (segs):" Grid.Column="0" Grid.Row="0" Margin="1"  HorizontalAlignment="Right" />
+                <TextBox PreviewTextInput="PreviewTextInput" Grid.Row="0" Grid.Column="1" Margin="1" ></TextBox>
+            </Grid>
+            
+            <Button Name="btnPlayTomaDeDatos" Click="btnPlayTomaDeDatos_Click"  IsEnabled="{Binding BtnPlayTomaDeDatosIsEnable}" Grid.Column="0" Grid.Row="7" Margin="5">Comenzar toma de datos</Button>
+            <Grid  Grid.Row="7" Grid.Column="1"  Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label Content="Trabajo (segs):" Grid.Column="0" Grid.Row="0" Margin="1"  HorizontalAlignment="Right" />
+                <TextBox PreviewTextInput="PreviewTextInput" Grid.Row="0" Grid.Column="1" Margin="1" ></TextBox>
+            </Grid>
+            <Label  Name="lbProfundidad" Content="{Binding LbProfundidadText}" Grid.Column="2" Grid.Row="7" Margin="5,6,5,4" />
+        </Grid>
+        <Grid x:Name="contentGrid" Grid.Row="1" HorizontalAlignment="Center" Width="780" Margin="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
+                <TextBlock Text="Vista del Kinect"  HorizontalAlignment="Center" FontSize="20" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="0" Margin="5"/>
+                <Viewbox x:Name="kinectBodyViewbox" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
+                </Viewbox>
+            </StackPanel>
+            <Grid x:Name="gestureResultGrid" Grid.Column="0" Grid.Row="1" Width="Auto" Margin="5"  VerticalAlignment="Top">
+                <Grid.Style>
+                    <Style TargetType="{x:Type Grid}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsTracked}" Value="True">
+                                <Setter Property="Background" Value="CornflowerBlue"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsTracked}" Value="False">
+                                <Setter Property="Background" Value="LightGray"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Resultado del Kinect" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontSize="20" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="0" Margin="5"/>
+
+                <TextBlock Text="{Binding StateMF, StringFormat='Estado: {0}'}" FontSize="18" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="1" Margin="5"/>
+                <TextBlock Text="{Binding StateMF, StringFormat='Tiempo: {0:0.000}'}" FontSize="18" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="1" Grid.Column="1" Margin="5"/>
+                <TextBlock Text="{Binding Serie, StringFormat='Serie: {0}'}" FontSize="18" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="1" Grid.Column="2" Margin="5"/>
+                
+                <TextBlock Text="{Binding Repetitions, StringFormat='Repeticiones: {0}'}" FontSize="18" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="2" Grid.Column="0" Margin="5"/>
+                <TextBlock Text="{Binding IndexStep, StringFormat='Paso: {0}'}" FontSize="18" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="2" Grid.Column="1" Margin="5"/>
+                <TextBlock Text="{Binding Progress, StringFormat='Progreso: {0}'}" FontSize="18" FontFamily="Segoe UI" FontWeight="SemiBold" Grid.Row="2" Grid.Column="2" Margin="5"/>
+            </Grid>
+        </Grid>
+        <ProgressBar Grid.Row="2"  Height="20" Margin="5" Minimum="0" Maximum="100" Value="{Binding WorkerState}"></ProgressBar>
+        <StatusBar Grid.Row="3" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="#FF230BBB">
+            <StatusBarItem Content="{Binding StatusText}" />
+        </StatusBar>
     </Grid>
 </Window>
