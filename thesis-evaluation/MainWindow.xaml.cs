@@ -92,6 +92,7 @@ namespace thesis_evaluation
         /// Temporizador de actualizacion de los frames de kinect cada 60 fps
         /// </summary>
         private DispatcherTimer dispatcherTimer = null;
+        private DispatcherTimer dispatcherTimerRecolector = null;
 
         /// <summary>
         /// Detector de posturas 
@@ -255,7 +256,7 @@ namespace thesis_evaluation
                     this.kinectBodyView.clearJoins();
                     StepFunctionalMovement sfm = StepFunctionalMovement.createStep(details, step,
                         this.headerView.Trainer.functionalMovement._ID, time,
-                        accumulateTime);
+                        accumulateTime, this.gestureResultView.Progress);
                     this.gestureResultView.addStepDetail(sfm);
 
                 }
@@ -284,9 +285,9 @@ namespace thesis_evaluation
 
             // Instancia el objeto con valores por defecto
             this.gestureResultView = new GestureResultView(false, -1.0f, this.headerView.Trainer.functionalMovement.steps.Count);
-            this.gestureResultView.updateRutine(this.headerView.Trainer.series, this.headerView.Trainer.descanso, this.headerView.Trainer.trabajo);
+            
             // Herramienta que detecta las posturas Con el sensor kinect 
-            this.gestureDetector = new GestureDetector(this.kinectSensor, this.gestureResultView, this.headerView.Trainer.folder);
+            this.gestureDetector = new GestureDetector(this.kinectSensor, this.gestureResultView, this.headerView.Trainer.GBD);
 
             // Asigna los datos a la interfaz
             this.kinectBodyViewbox.DataContext = this.kinectBodyView;
@@ -404,11 +405,12 @@ namespace thesis_evaluation
             // Por cada frame se actualiza la pantalla
             this.dispatcherTimer.Tick += this.DispatcherTimer_Tick;
             // Defino 60 fps
-            this.dispatcherTimer.Interval = TimeSpan.FromSeconds(1 / 60);
+            this.dispatcherTimer.Interval = TimeSpan.FromSeconds(1/60);
             // Comienza el reloj
             this.dispatcherTimer.Start();
         }
-
+        DateTime ahora;
+        DateTime termino;
         private void btnOpenFileCarpet_Click(object sender, RoutedEventArgs e)
         {
             this.headerView.btnOpenFileCarpet_Click();
@@ -442,6 +444,29 @@ namespace thesis_evaluation
             int trabajo = Convert.ToInt32(this.tbTrabajo.Text);
             if (trabajo < 1) { MessageBox.Show("El tiempo de trabakjo debe ser mayor o igual a 1 segundo"); return; }
             this.headerView.btnPlayTomaDeDatos_Click(series, descanso, trabajo);
+            this.gestureResultView.updateRutine(this.headerView.Trainer.series, this.headerView.Trainer.descanso, this.headerView.Trainer.trabajo);
+
+            this.dispatcherTimerRecolector = new DispatcherTimer();
+            // Por cada frame se actualiza la pantalla
+            this.dispatcherTimerRecolector.Tick += this.DispatcherTimer2_Tick;
+            // Defino 60 fps
+            this.dispatcherTimerRecolector.Interval = TimeSpan.FromSeconds(0.017);
+            ahora = DateTime.Now;
+            // Comienza el reloj
+            this.dispatcherTimerRecolector.Start();
+        }
+
+        private void DispatcherTimer2_Tick(object sender, EventArgs e)
+        {
+            if (!this.gestureResultView.isFinish())
+            {
+                this.gestureResultView.updateTimeTotal();
+            }
+            else
+            {
+                this.dispatcherTimerRecolector.Stop();
+                this.chargeLoading();
+            }
         }
 
         /// <summary>
@@ -451,23 +476,25 @@ namespace thesis_evaluation
         /// <param name="e">Argumentos del evento</param>
         private void DispatcherTimer_Tick(object sender, EventArgs e)
         {
-            // Actualiza el estado del kinect
             this.UpdateKinectStatusText();
             this.UpdateKinectFrameData();
-            if (this.gestureResultView.isFinish())
+           /* if (this.gestureResultView.isFinish())
             {
-                this.gestureResultView.updateState("CAPTURANDO");
-                this.chargeLoading();
+                DateTime termino = DateTime.Now;
+                System.TimeSpan prueba = termino - ahora;
+                this.gestureResultView.updateState("CAPTURANDO",4);
+                //this.chargeLoading();
             }
-            else if(this.gestureResultView.isPrintData())
+            else if (this.gestureResultView.isPrintData())
             {
                 return;
-            }
-            else if (this.headerView.isGetData && !this.gestureResultView.isFinish())
+            }*/
+            if (this.headerView.isGetData && this.gestureResultView.isWork())
             {
-                this.gestureResultView.checkNewMovementFunctional();
                 int step = this.headerView.Trainer.functionalMovement.getStep(this.gestureResultView.Progress);
                 this.gestureResultView.updateStep(step);
+                this.gestureResultView.checkNewMovementFunctional();
+                this.gestureResultView.updateRepetitions();
                 if (!this.gestureResultView.isNewFunctionalMovement && !this.gestureResultView.isTakeDataOfFunctionalMovement())
                 {
                     this.checkData(step);
@@ -506,7 +533,7 @@ namespace thesis_evaluation
             _bgWorker = new BackgroundWorker();
             _bgWorker.DoWork += (s, e) =>
             {
-                MessageBox.Show("Esperar un momento, exportando la informacion a la carpeta correspondiente");
+                MessageBox.Show("Calculando angulos de movimiento");
                 int total = this.gestureResultView.stepsByMovement.Count;
                 total += 10;
                 int load = 0;
@@ -518,7 +545,9 @@ namespace thesis_evaluation
                     getLoad = (load / total) * 100;
                     this.WorkerState = Convert.ToInt32(getLoad);
                 }
-                string stringJson = JsonConvert.SerializeObject(this.gestureResultView.results);
+                MessageBox.Show("Exportando informacion del reporte");
+                AnalyzerOfMovementFunctional analyzer = new AnalyzerOfMovementFunctional(this.gestureResultView.stepsByMovement, this.headerView.Trainer.functionalMovement, this.gestureResultView.trabajo, this.gestureResultView.descanso, this.gestureResultView.series);
+                string stringJson = JsonConvert.SerializeObject(analyzer.report);
                 System.IO.File.WriteAllText($"{this.headerView.Trainer.folder}/resultados.json", stringJson);
                 this.WorkerState = 100;
                 MessageBox.Show($"Se ha exportado toda la informaccion a la carpeta: {this.headerView.Trainer.folder}");

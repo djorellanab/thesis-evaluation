@@ -29,20 +29,20 @@ namespace thesis_evaluation.models
         {
             switch (angle)
             {
-                case 0: return new List<JointType>() { JointType.Neck, JointType.Head, JointType.SpineShoulder };
-                case 1: return new List<JointType>() { JointType.ShoulderLeft, JointType.SpineShoulder, JointType.ElbowLeft };
-                case 2: return new List<JointType>() { JointType.ShoulderRight, JointType.SpineShoulder, JointType.ElbowRight };
-                case 3: return new List<JointType>() { JointType.ElbowLeft, JointType.ShoulderLeft, JointType.WristLeft };
-                case 4: return new List<JointType>() { JointType.ElbowRight, JointType.ShoulderRight, JointType.WristRight };
-                case 5: return new List<JointType>() { JointType.WristLeft, JointType.ElbowLeft, JointType.HandLeft };
-                case 6: return new List<JointType>() { JointType.WristRight, JointType.ElbowRight, JointType.HandRight };
-                case 7: return new List<JointType>() { JointType.SpineMid, JointType.SpineShoulder, JointType.SpineBase };
-                case 8: return new List<JointType>() { JointType.HipLeft, JointType.SpineBase, JointType.KneeLeft };
-                case 9: return new List<JointType>() { JointType.HipRight, JointType.SpineBase, JointType.KneeRight };
-                case 10: return new List<JointType>() { JointType.KneeLeft, JointType.HipLeft, JointType.AnkleLeft };
-                case 11: return new List<JointType>() { JointType.KneeRight, JointType.HipRight, JointType.AnkleRight };
-                case 12: return new List<JointType>() { JointType.AnkleLeft, JointType.KneeLeft, JointType.FootLeft };
-                case 13: return new List<JointType>() { JointType.AnkleRight, JointType.KneeRight, JointType.FootRight };
+                case 2: return new List<JointType>() { JointType.Neck, JointType.Head, JointType.SpineShoulder };
+                case 4: return new List<JointType>() { JointType.ShoulderLeft, JointType.SpineShoulder, JointType.ElbowLeft };
+                case 8: return new List<JointType>() { JointType.ShoulderRight, JointType.SpineShoulder, JointType.ElbowRight };
+                case 5: return new List<JointType>() { JointType.ElbowLeft, JointType.ShoulderLeft, JointType.WristLeft };
+                case 9: return new List<JointType>() { JointType.ElbowRight, JointType.ShoulderRight, JointType.WristRight };
+                case 6: return new List<JointType>() { JointType.WristLeft, JointType.ElbowLeft, JointType.HandLeft };
+                case 10: return new List<JointType>() { JointType.WristRight, JointType.ElbowRight, JointType.HandRight };
+                case 1: return new List<JointType>() { JointType.SpineMid, JointType.SpineShoulder, JointType.SpineBase };
+                case 12: return new List<JointType>() { JointType.HipLeft, JointType.SpineBase, JointType.KneeLeft };
+                case 16: return new List<JointType>() { JointType.HipRight, JointType.SpineBase, JointType.KneeRight };
+                case 13: return new List<JointType>() { JointType.KneeLeft, JointType.HipLeft, JointType.AnkleLeft };
+                case 17: return new List<JointType>() { JointType.KneeRight, JointType.HipRight, JointType.AnkleRight };
+                case 14: return new List<JointType>() { JointType.AnkleLeft, JointType.KneeLeft, JointType.FootLeft };
+                case 18: return new List<JointType>() { JointType.AnkleRight, JointType.KneeRight, JointType.FootRight };
                 default: return new List<JointType>();
             }
         }

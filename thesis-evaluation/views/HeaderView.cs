@@ -116,7 +116,8 @@ namespace thesis_evaluation.views
             }
         }
 
-        public bool btnPlayTomaDeDatosIsEnable = false;
+        //aca
+        public bool btnPlayTomaDeDatosIsEnable = true;
         public bool BtnPlayTomaDeDatosIsEnable
         {
             get
@@ -238,7 +239,8 @@ namespace thesis_evaluation.views
 
         private void disableAllButtonGetData()
         {
-            this.BtnPlayTomaDeDatosIsEnable = false;
+            // aca
+            this.BtnPlayTomaDeDatosIsEnable = true;
         }
 
 
@@ -326,7 +328,8 @@ namespace thesis_evaluation.views
             this.Trainer.descanso = descanso;
             this.Trainer.trabajo = trabajo;
             this.BtnPararIsEnable = false;
-            this.BtnPlayTomaDeDatosIsEnable = false;
+            // aca
+            this.BtnPlayTomaDeDatosIsEnable = true;
             this.isGetData = true;
         }
 
@@ -334,7 +337,8 @@ namespace thesis_evaluation.views
         {
             this.isGetData = false;
             this.BtnPararIsEnable = false;
-            this.BtnPlayTomaDeDatosIsEnable = false;
+            // aca
+            this.BtnPlayTomaDeDatosIsEnable = true;
             this.BtnCalibrarIsEnable = false;
         }
 

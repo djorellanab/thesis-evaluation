@@ -82,7 +82,7 @@ namespace thesis_evaluation
 
         private void createSaveFolder()
         {
-            DateTime date = new DateTime();
+            DateTime date = DateTime.Now;
             string[] names = this.functionalMovement.name.Trim().Split(' ');
             string folderName = "/" + string.Concat(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second);
             foreach (string name in names)

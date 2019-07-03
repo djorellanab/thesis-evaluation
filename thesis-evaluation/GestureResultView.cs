@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using thesis_evaluation.common;
 using thesis_evaluation.models;
+using System.Media;
 
 namespace thesis_evaluation
 {
@@ -16,7 +17,7 @@ namespace thesis_evaluation
     public sealed class GestureResultView : BindableBase
     {
         #region  Atributos
-        private readonly double tickTime = 0.017;
+        private readonly double tickTime = 0.033;
         private int countStep = 0;
         public List<List<List<StepFunctionalMovement>>> stepsByMovement = null;
         private int repetitions = 0;
@@ -105,6 +106,8 @@ namespace thesis_evaluation
                 this.SetProperty(ref this.stateMF, value);
             }
         }
+
+        public int indexState = 0;
 
         private int timeMF = 0;
         public int TimeMF
@@ -213,13 +216,21 @@ namespace thesis_evaluation
         }
         public void addStepDetail(StepFunctionalMovement step)
         {
+            if (step.step != (this.countStep-1) )
+            {
+                StepFunctionalMovement _sfm = this.stepsByMovement[this.serieMF - 1][this.repetitions][step.step + 1];
+                if (_sfm != null)
+                {
+                    this.stepsByMovement[this.serieMF - 1][this.repetitions][step.step + 1] = null;
+                }
+            }
             this.stepsByMovement[this.serieMF-1][this.repetitions][step.step] = step;
 
-            if (step.step == (this.stepsByMovement.Count - 1) && isCorrectMF())
+            if (step.step == (this.countStep - 1) && isCorrectMF())
             {
                 isNewFunctionalMovement = true;
-                this.createStepsDetail();
-                this.Repetitions++;
+                /*this.createStepsDetail();
+                this.Repetitions = this.Repetitions + 1;*/
             }
         }
 
@@ -236,57 +247,57 @@ namespace thesis_evaluation
         public void getAngle(List<int> _angles, int i)
         {
             List<List<StepFunctionalMovement>> _series = this.stepsByMovement[i];
-            int _repetition = 0;
-            foreach (List<StepFunctionalMovement> _repetitions in _series)
+            for (int x = 0; x < _series.Count; x++)
             {
-                _repetition++;
-                List<ResultAI> rais = new List<ResultAI>();
+                List<StepFunctionalMovement> _repetitions = _series[x];
                 bool isOut = false;
+                int ii = 0;
                 foreach (StepFunctionalMovement step in _repetitions)
                 {
                     if (step != null)
                     {
+                        if (ii == 0)
+                        {
+                            step.time = 0;
+                        }
+                        else
+                        {
+                            step.time = _repetitions[ii].accumulate - _repetitions[ii - 1].accumulate;
+                        }
                         foreach (int _angle in _angles)
                         {
                             List<JointType> joints = DetailsOfStepFunctionalMovement.translateAngles(_angle);
-                            List<DetailsOfStepFunctionalMovement> vectorialPoints = step.detailsOfStepFunctionalMovement.FindAll(x => joints.Contains((JointType)x.join));
-                            if (vectorialPoints.Count != 3) { isOut = true; return; }
-                            DetailsOfStepFunctionalMovement origen = vectorialPoints.Find(x => (int)x.angle == (int)joints[0]);
-                            if (origen != null) { isOut = true; return; }
-                            vectorialPoints.RemoveAll(x => (int)x.angle == (int)joints[0]);
-                            if (vectorialPoints.Count != 2) { isOut = true;  continue; }
-                            else if (vectorialPoints[0] == null && vectorialPoints[1] == null) { isOut = true; continue; }
+                            List<DetailsOfStepFunctionalMovement> vectorialPoints = step.detailsOfStepFunctionalMovement.FindAll(e => joints.Contains((JointType)e.join));
+                            if (vectorialPoints.Count != 3) { isOut = true; break; }
+                            DetailsOfStepFunctionalMovement origen = vectorialPoints.Find(e => e.join == (int)joints[0]);
+                            if (origen == null) { isOut = true;  break; }
+                            vectorialPoints.RemoveAll(e => (int)e.join == (int)joints[0]);
+                            if (vectorialPoints.Count != 2) { isOut = true; break; }
+                            if ((vectorialPoints[0] == null) || (vectorialPoints[1] == null)) { isOut = true; break; }
                             Point po = new Point(origen.x, origen.y);
                             Point p1 = new Point(vectorialPoints[0].x, vectorialPoints[0].y);
                             Point p2 = new Point(vectorialPoints[1].x, vectorialPoints[1].y);
                             origen.angle = KinectAngleBody.getAngleBody(po, p1, p2);
-
-                            rais.Add(new ResultAI()
-                            {
-                                accumulateTime = step.accumulate,
-                                angle = origen.angle,
-                                joint = origen.join,
-                                repetition = _repetition,
-                                serie =  i,
-                                step = step.step,
-                                time = step.time,
-                                x = origen.x,
-                                y = origen.y
-                            });
                         }
-                        if (isOut)
-                        {
-                            return; 
-                        }
+                        Predicate<DetailsOfStepFunctionalMovement> predicate = detail => {
+                            return !_angles.Contains(detail.join);
+                        };
+                        step.detailsOfStepFunctionalMovement.RemoveAll(predicate);
                     }
-                    else { isOut = true; return; }
-                }
-                if (!isOut)
-                {
-                    foreach (ResultAI rai in rais)
+                    else
                     {
-                        this.results.Add(rai);
+                        isOut = true;
                     }
+                    if (isOut == true)
+                    {
+                        break;
+                    }
+                    ii++;
+                }
+                if (isOut == true)
+                {
+                    _series.RemoveAt(x);
+                    x--;
                 }
             }
         }
@@ -295,13 +306,20 @@ namespace thesis_evaluation
         {
             if (this.isNewFunctionalMovement)
             {
-                this.isNewFunctionalMovement = (this.indexStep == 0);
+                if (this.indexStep == 0)
+                {
+                    this.isNewFunctionalMovement = false;
+                }
             }
         }
 
         public bool isTakeDataOfFunctionalMovement()
         {
-            return this.stepsByMovement[this.repetitions][this.indexStep] != null;
+            if (this.repetitions < 1)
+            {
+                return false;
+            }
+            return this.stepsByMovement[this.serieMF-1][this.repetitions][this.indexStep] != null;
         }
 
         public void updateStep(int step)
@@ -312,6 +330,16 @@ namespace thesis_evaluation
             }
         }
 
+        public void updateRepetitions()
+        {
+            foreach (StepFunctionalMovement item in this.stepsByMovement[this.serieMF - 1][this.repetitions])
+            {
+                if (item == null) { return; }
+            }
+            this.createStepsDetail();
+            this.Repetitions = this.Repetitions + 1;
+        }
+
         public void updateTimeTotal()
         {
             this.TimeTotalMF += tickTime;
@@ -319,18 +347,21 @@ namespace thesis_evaluation
             if (!isWorkFunctionalMovement)
             {
                 this.StateMF = "DESCANSO";
+                indexState = 1;
                 int modTime = (Convert.ToInt32(this.TimeTotalMF) + offSet) % descanso;
                 this.TimeMF = descanso - modTime;
             }
             else
             {
                 this.StateMF = "TRABAJO";
+                indexState = 2;
                 int modTime = (Convert.ToInt32(this.TimeTotalMF) + offSet) % trabajo;
                 this.TimeMF = trabajo - modTime;
             }
 
             if ((Convert.ToDouble(descanso) <= timeStep) && !isWorkFunctionalMovement)
             {
+                System.Media.SystemSounds.Beep.Play();
                 offSet += descanso;
                 timeStep = 0;
                 isWorkFunctionalMovement = !isWorkFunctionalMovement;
@@ -340,13 +371,16 @@ namespace thesis_evaluation
             {
                 if (this.serieMF != series)
                 {
+                    System.Media.SystemSounds.Beep.Play();
                     offSet += trabajo;
                     timeStep = 0;
                     isWorkFunctionalMovement = !isWorkFunctionalMovement;
                 }
                 else
                 {
+                    System.Media.SystemSounds.Hand.Play();
                     this.StateMF = "FIN";
+                    indexState = 3;
                 }
             }
         }
@@ -358,7 +392,11 @@ namespace thesis_evaluation
 
         public bool isFinish()
         {
-            return this.stateMF == "FIN";
+            return this.indexState == 3;
+        }
+        public bool isWork()
+        {
+            return this.indexState == 2;
         }
         private void addSerie()
         {
@@ -368,14 +406,15 @@ namespace thesis_evaluation
             createStepsDetail();
         }
 
-        public void updateState(string state)
+        public void updateState(string state, int index)
         {
+            indexState = index;
             this.StateMF = state;
         }
 
         public bool isPrintData()
         {
-            return this.stateMF == "CAPTURANDO";
+            return this.indexState == 4;
         }
 
         #endregion

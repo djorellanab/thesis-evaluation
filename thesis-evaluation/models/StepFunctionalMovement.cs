@@ -16,9 +16,12 @@ namespace thesis_evaluation.models
         public List<DetailsOfStepFunctionalMovement> detailsOfStepFunctionalMovement { get; set; }
         public string pathImage { get; set; }
         public bool status { get; set; }
+        public float factorMovement { get; set; }
+
+
 
         public static StepFunctionalMovement createStep(List<DetailsOfStepFunctionalMovement> details, int _step,
-            string _functionalMovement, double _time, double _accumulate)
+            string _functionalMovement, double _time, double _accumulate, float _factorMovement)
         {
             return new StepFunctionalMovement()
             {
@@ -28,7 +31,8 @@ namespace thesis_evaluation.models
                 status = true,
                 step = _step,
                 time = _time,
-                accumulate = _accumulate
+                accumulate = _accumulate,
+                factorMovement = _factorMovement
             };
         }
 

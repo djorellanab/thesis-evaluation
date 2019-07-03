@@ -45,7 +45,8 @@ namespace thesis_evaluation
 
             dotProductPoint /= productMagnitude;
 
-            return Math.Acos(dotProductPoint);
+            double radians = Math.Acos(dotProductPoint);
+            return (radians * 180) / Math.PI;
         }
 
         public static List<double> GetTraslationPoint(List<double> origenPoint, List<double> refPoint)

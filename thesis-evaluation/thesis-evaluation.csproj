@@ -89,6 +89,7 @@
     <Compile Include="GestureResultView.cs" />
     <Compile Include="KinectAngleBody.cs" />
     <Compile Include="KinectBodyView.cs" />
+    <Compile Include="models\AnalyzerOfMovementFunctional.cs" />
     <Compile Include="models\ResultAI.cs" />
     <Compile Include="Trainer.cs" />
     <Compile Include="views\HeaderView.cs" />
