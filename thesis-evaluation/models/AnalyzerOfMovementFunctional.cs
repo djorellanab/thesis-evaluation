@@ -56,6 +56,7 @@ namespace thesis_evaluation.models
                 double fin = (i * this.variablesAnalyzer.workTime) + this.variablesAnalyzer.restTime;
                 endurance.data.Add(new PointAnalyzer() { x = inicio, y = 0 });
                 endurance.data.Add(new PointAnalyzer() { x = fin, y = 0 });
+                datasetEndurance.Add(endurance);
             }
 
             for (int i = 0; i < functionalMovement.steps.Count; i++)
@@ -88,9 +89,9 @@ namespace thesis_evaluation.models
                     {
                         List<object> dataIA = new List<object>();
                         StepFunctionalMovement _step = _repetition[steps];
-                        dataIA.Add(repetitions);
                         dataIA.Add(_step.step);
                         dataIA.Add(_step.factorMovement);
+                        _step.detailsOfStepFunctionalMovement = _step.detailsOfStepFunctionalMovement.OrderBy(x => x.join).ToList();
                         foreach (DetailsOfStepFunctionalMovement detail in _step.detailsOfStepFunctionalMovement)
                         {
                             datasetStepFlexibility[steps][detail.join].Add(detail.angle);
@@ -99,8 +100,8 @@ namespace thesis_evaluation.models
                         datasetAgility[steps].Add(_step.time);
                         datasetIA.Add(dataIA);
                     }
-                    double durationStep = _repetition[steps - 1].accumulate - _repetition[0].accumulate;
-                    datasetLastStep.Add(durationStep);
+                    double durationRepetition = _repetition[steps - 1].accumulate - _repetition[0].accumulate;
+                    datasetLastStep.Add(durationRepetition);
                     endurance.data.Add(new PointAnalyzer()
                     {
                         x = _repetition[steps-1].accumulate,
@@ -110,10 +111,15 @@ namespace thesis_evaluation.models
                 datasetRepetitions.Add(repetitions);
                 int repetitionsPower = repetitions;
                 double timePower = _serie[repetitions - 1][functionalMovement.steps.Count - 1].accumulate - _serie[0][0].accumulate;
-                if ((repetitionsPower >= dataPower.repetitions) && (timePower < dataPower.time))
+                if (repetitionsPower > dataPower.repetitions)
                 {
                     dataPower.updatePower(repetitionsPower, timePower);
                 }
+                else if((repetitionsPower == dataPower.repetitions) && (timePower < dataPower.time))
+                {
+                    dataPower.updatePower(repetitionsPower, timePower);
+                }
+                datasetEndurance.Add(endurance);
             }
             for (int i = 0; i < functionalMovement.steps.Count; i++)
             {
@@ -122,10 +128,12 @@ namespace thesis_evaluation.models
                 foreach (KeyValuePair<int, List<double>> entry in dictionary)
                 {
                     double avgFlexibility = entry.Value.Average();
+                    string nameAngle = DetailsOfStepFunctionalMovement.getNameJoin(entry.Key);
                     detailsFlexibility.Add(new FlexibilityAnalyzer()
                     {
                         joint = entry.Key,
-                        angle = avgFlexibility
+                        angle = avgFlexibility,
+                        name = nameAngle
                     });
                 }
                 double avgTime = datasetAgility[i].Average();
@@ -188,6 +196,7 @@ namespace thesis_evaluation.models
     {
         public int joint { get; set; }
         public double angle { get; set; }
+        public string name { get; set; }
     }
 
     public class AgilityAnalyzer
